@@ -1,0 +1,20 @@
+First, calculate and show the phase distribution of oscillators.
+Then show the synchronization and robustness effect of rewiring, with parameters well selected. How to define the entrainment time ?
+Next, calculate the PRC, IRC, entrainment time and entrainment range for oscillators under both rewiring and no rewiring cases
+For each step, the rewiring rate and difference between ventral and dorsal SCN need considering.
+
+# the entrainment is not needed when not considering the effect of rewiring on seasonal clock. 
+
+Finally, try to find a physical picture of rewiring. Try to find a analytic explanation of kuramoto model.
+
+problem: the ventral SCN can not entrainment the dorsal SCN.
+change the network
+
+# Before comparation, checking the reliability of the network: under DD, the effect of TTX , etc
+
+Objective:
+1. synchronization better: R
+2. synchronization faster
+3. resynchronization faster(jet-lag)
+
+parameters: d, p_link, K, p_re, t_re

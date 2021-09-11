@@ -1,0 +1,19 @@
+{
+    "configurations": [{
+        "name": "Win32",
+        "includePath": [
+            "${workspaceFolder}/**",
+            "E:\\apps\\msys64\\mingw64\\include"
+        ],
+        "defines": [
+            "_DEBUG",
+            "UNICODE",
+            "_UNICODE"
+        ],
+        "compilerPath": "E:\\apps\\mingw64\\bin\\gcc.exe",
+        "cStandard": "c11",
+        "cppStandard": "gnu++14",
+        "intelliSenseMode": "clang-x64"
+    }],
+    "version": 4
+}
