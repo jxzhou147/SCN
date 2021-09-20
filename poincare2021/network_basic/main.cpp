@@ -97,7 +97,7 @@ void *threadfunc(void *arg)
     //construct_connection_sw_triVal(a, 40, 0.1, 0.1, tid);
     //write_connect(a);
     construct_connection_sf_triVal(a, m, p_8, tid);
-    //write_connect(a);
+    write_connect(a);
 
     int component[2] = {0};
     net_component(a, component);

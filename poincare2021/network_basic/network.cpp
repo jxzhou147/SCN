@@ -420,7 +420,7 @@ void construct_connection_sf_triVal(double **a, int m, double p_8, int tid)
         {
             for (size_t jj = 0; jj < i; jj++)
             {
-                if (a[j][jj] == 1)
+                if ((a[j][jj] == 1) | (a[jj][j] == 1))
                 {
                     k[j]++;
                     k_tot++;
