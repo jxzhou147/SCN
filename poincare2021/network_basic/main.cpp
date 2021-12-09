@@ -20,28 +20,28 @@ int tnum = 1;
 
 void *threadfunc(void *arg)
 {
-    double p_8 = *(double *)arg;
+    double t_re = *(double *)arg;
     int tid = tnum++;
-    //int tid = 1;
+    // int tid = 1;
 
     double tcycle = 24.0;
     double daylength = 12;
     double K_f = 0;
 
-    double K = 0.03;
-    double sigma = 0;
-    //double sigma = 0.05;
+    double K = 0.1;
+    double sigma = 0.05;
+    // double sigma = 0.05;
     double p_sigma = 0.3;
 
     double m = 4;
-    double p_random = 0.01;
+    double p_random = 0.004;
     double d = 1;
-    //double p_link = 0.01;
+    // double p_link = 0.01;
     double p_vd = 0.01;
     double p_dv = 0;
-    //double p_8 = 0;
-    double p_cut = 1;
-    double t_re = 1;
+    double p_8 = 0;
+    double p_cut = 0.8;
+    // double t_re = 1;
 
     double y[2 * N];
     double ed[N];
@@ -85,19 +85,19 @@ void *threadfunc(void *arg)
     int t1, t2;
     double compute_t1 = 0, compute_t2 = 0;
 
-    //srand((unsigned)time(NULL));
+    // srand((unsigned)time(NULL));
 
-    //construct_connection_random(a, p_random, tid);
-    //construct_connection_triVal(a, p_random, p_8, tid);
-    //construct_connection_norm(a, p_random, p_sigma, tid);
-    //construct_connection_uniform(a, p_random, tid);
-    //construct_connection_vd(a, p_link, d, p_vd, p_dv, tid);
-    //construct_connection_sw(a, 0.1, tid);
-    //construct_connection_random_undirected(a, p_random, tid);
-    //construct_connection_sw_triVal(a, 40, 0.1, 0.1, tid);
-    //write_connect(a);
-    construct_connection_sf_triVal(a, m, p_8, tid);
-    write_connect(a);
+    construct_connection_random(a, p_random, tid);
+    // construct_connection_triVal(a, p_random, p_8, tid);
+    // construct_connection_norm(a, p_random, p_sigma, tid);
+    // construct_connection_uniform(a, p_random, tid);
+    // construct_connection_vd(a, p_link, d, p_vd, p_dv, tid);
+    // construct_connection_sw(a, 0.1, tid);
+    // construct_connection_random_undirected(a, p_random, tid);
+    // construct_connection_sw_triVal(a, 40, 0.1, 0.1, tid);
+    // write_connect(a);
+    // construct_connection_sf_triVal(a, m, p_8, tid);
+    // write_connect(a);
 
     int component[2] = {0};
     net_component(a, component);
@@ -111,7 +111,7 @@ void *threadfunc(void *arg)
                 a_num++;
         }
     }
-    //cout << a_num << ',' << component[0] << ',' << component[1] << endl;
+    // cout << a_num << ',' << component[0] << ',' << component[1] << endl;
 
     for (size_t i = 0; i < N; i++)
     {
@@ -129,7 +129,7 @@ void *threadfunc(void *arg)
             if (a[j][i] != 0)
                 ed[i]++;
         }
-        //ed[i] += abs(a[j][i]);
+        // ed[i] += abs(a[j][i]);
     }
 
     unsigned seed = system_clock::now().time_since_epoch().count();
@@ -180,22 +180,28 @@ void *threadfunc(void *arg)
         else
             light = 0;
 
-        //if (t > 600)
-        //  light = 1;
-        /*
+        // if (t > 600)
+        //   light = 1;
+
         //////////// dynamic network
         t1 = floor(t / t_re);
         if (t1 != t2)
         {
-            //dynamicWireAndCut(param.a, p_cut, tid);
-            //dynamicWireAndCut_undirected(a, p_cut, tid);
-            //dynamic_triVal(param.a, p_cut, tid);
-            dynamic_triVal_random(a, p_8, tid);
-            //dynamic_norm(a, p_cut, p_sigma, tid);
-            //dynamic_uniform(a, p_cut, tid);
+            dynamicWireAndCut(param.a, p_cut, tid);
+            // dynamicWireAndCut_undirected(a, p_cut, tid);
+            // dynamic_triVal(param.a, p_cut, tid);
+            // dynamic_triVal_random(a, p_8, tid);
+            // dynamic_norm(a, p_cut, p_sigma, tid);
+            // dynamic_uniform(a, p_cut, tid);
+            for (size_t i = 0; i < N; i++)
+            {
+                ed[i] = 0;
+                for (size_t j = 0; j < N; j++)
+                    ed[i] += abs(a[j][i]);
+            }
         }
         t2 = floor(t / t_re);
-*/
+
         /*
         light_on = light;
 
@@ -259,7 +265,7 @@ void *threadfunc(void *arg)
         if (t > (t0 - 300))
             find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
 
-        //write_curve(y, t, light);
+        // write_curve(y, t, light);
 
         for (size_t i = 0; i < 2 * N; i++)
             dydt_in[i] = dydt_out[i];
@@ -272,7 +278,7 @@ void *threadfunc(void *arg)
     double syn = syn_degree(period_, peak);
 
     pthread_rwlock_wrlock(&rwlock);
-    //write_results_period(period_a, period_s, syn, p_random, component);
+    // write_results_period(period_a, period_s, syn, p_random, component);
     write_results(syn, p_8, t_re);
     pthread_rwlock_unlock(&rwlock);
 
@@ -303,10 +309,10 @@ int main(int argc, char *argv[])
     ofile.open("curve.csv");
     ofile.close();
 
-    //double param_in = stod(argv[1]);
+    // double param_in = stod(argv[1]);
 
-    int nthread = 1;
-    int same_num = 10;
+    int nthread = 40;
+    int same_num = 1;
     int iv;
     double values[nthread];
     pthread_t threads[nthread];
@@ -316,11 +322,11 @@ int main(int argc, char *argv[])
     for (size_t i = 0; i < nthread; i++)
     {
         iv = i / same_num;
-        //if (i <= 20)
-        values[i] = floor((double)i / (double)same_num) * 0.1 + 0.3;
-        //else
-        //   values[i] = (floor((double)i / (double)same_num) - 20) * 0.1;
-        //values[i] = pow(10, i) * 0.1;
+        // if (i <= 20)
+        values[i] = floor((double)i / (double)same_num) * 1 + 1;
+        // else
+        //    values[i] = (floor((double)i / (double)same_num) - 20) * 0.1;
+        // values[i] = pow(10, i) * 0.1;
         pthread_create(&(threads[i]), NULL, threadfunc, values + i);
     }
 

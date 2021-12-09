@@ -21,17 +21,17 @@ int poincare(double t, const double y[], double f[], void *params)
         light = 1;
     else
         light = 0;
-
-    // no average
-    for (size_t i = 0; i < N; i++)
-    {
-        interaction[i] = 0;
-        for (size_t j = 0; j < N; j++)
-        {
-            interaction[i] += param->a[j][i] * y[j];
-        }
-    }
     /*
+        // no average
+        for (size_t i = 0; i < N; i++)
+        {
+            interaction[i] = 0;
+            for (size_t j = 0; j < N; j++)
+            {
+                interaction[i] += param->a[j][i] * y[j];
+            }
+        }
+    */
     // 0/1
     for (size_t i = 0; i < N; i++)
     {
@@ -44,7 +44,7 @@ int poincare(double t, const double y[], double f[], void *params)
             }
         }
     }
-*/
+
     /*
     // 0/0.8/0.2
     for (size_t i = 0; i < N; i++)
