@@ -184,7 +184,7 @@ void *threadfunc(void *arg)
         y[i * Ns + 20] = 0.00;
     }
 
-    double t = 0, t0 = 2000;
+    double t = 0, t0 = 1000;
 
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rk4;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, Ns * N);
@@ -254,13 +254,14 @@ void *threadfunc(void *arg)
 
          compute_t2 = floor(t / 150.0);
  */
-        // if (t > (t0 - 300))
-        //{
-        //   find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
-        find_peak_t(t, peak_t, peak_now, peak_past, peak_old, y, ind);
-        // write_MP(y, t, light);
-        //}
+        if (t > (t0 - 300))
+            //{
+            find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
+        // find_peak_t(t, peak_t, peak_now, peak_past, peak_old, y, ind);
+        //  write_MP(y, t, light);
+        // }
     }
+    /*
     double peak_tt[N + 3][5] = {0};
 
     for (int peak_i = 0; peak_i < 87; peak_i += 3)
@@ -282,14 +283,15 @@ void *threadfunc(void *arg)
         syn_degree(R, P, peak_tt);
         write_rt(peak_i * 24 + 24, P, P_var, R);
     }
-    /*
-        period_ave(P, P_var, peak);
-        syn_degree(R, P, peak);
-
-        pthread_rwlock_wrlock(&rwlock);
-        write_results(P, P_var, R, t_re, connect_num, beta_light, p_cut, day);
-        pthread_rwlock_unlock(&rwlock);
     */
+
+    period_ave(P, P_var, peak);
+    syn_degree(R, P, peak);
+
+    pthread_rwlock_wrlock(&rwlock);
+    write_results(P, P_var, R, t_re, connect_num, beta_light, p_cut, day);
+    pthread_rwlock_unlock(&rwlock);
+
     // write_period_N(peak);
 
     for (int i = 0; i < N; i++)
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
 
     // double param_in = stod(argv[1]);
 
-    int nthread = 1;
+    int nthread = 40;
     int same_num = 1;
     int iv;
     double values[nthread];
@@ -326,7 +328,7 @@ int main(int argc, char *argv[])
     for (size_t i = 0; i < nthread; i++)
     {
         // if (i <= 20)
-        values[i] = floor((double)i / (double)same_num) * 1 + 24;
+        values[i] = floor((double)i / (double)same_num) * 1 + 1;
         // else
         //    values[i] = (floor((double)i / (double)same_num) - 20) * 0.1;
         // values[i] = pow(10, i) * 0.1;
