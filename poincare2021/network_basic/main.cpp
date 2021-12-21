@@ -34,13 +34,13 @@ void *threadfunc(void *arg)
     double p_sigma = 0.3;
 
     double m = 4;
-    double p_random = 0.004;
+    double p_random = 0.003;
     double d = 1;
     // double p_link = 0.01;
     double p_vd = 0.01;
     double p_dv = 0;
     double p_8 = 0;
-    double p_cut = 0.8;
+    double p_cut = 0.1;
     // double t_re = 1;
 
     double y[2 * N];
@@ -74,11 +74,14 @@ void *threadfunc(void *arg)
     int ind_ave_d[1] = {0};
     */
 
-    double peak[N + 1][5] = {0};
+    // double peak[N + 1][5] = {0};
     double peak_now[N + 1][2] = {0};
     double peak_past[N + 1][2] = {0};
     double peak_old[N + 1][2] = {0};
     int ind[N + 1] = {0};
+
+    //// for r-t curve
+    double peak_t[N + 1][90] = {0};
 
     int light = 0;
     int light_on = 0, light_off = 0;
@@ -156,7 +159,7 @@ void *threadfunc(void *arg)
             K,
             K_f};
 
-    double t = 0, t0 = 1000;
+    double t = 0, t0 = 2200;
 
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rk4;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, 2 * N);
@@ -182,26 +185,26 @@ void *threadfunc(void *arg)
 
         // if (t > 600)
         //   light = 1;
-
-        //////////// dynamic network
-        t1 = floor(t / t_re);
-        if (t1 != t2)
-        {
-            dynamicWireAndCut(param.a, p_cut, tid);
-            // dynamicWireAndCut_undirected(a, p_cut, tid);
-            // dynamic_triVal(param.a, p_cut, tid);
-            // dynamic_triVal_random(a, p_8, tid);
-            // dynamic_norm(a, p_cut, p_sigma, tid);
-            // dynamic_uniform(a, p_cut, tid);
-            for (size_t i = 0; i < N; i++)
-            {
-                ed[i] = 0;
-                for (size_t j = 0; j < N; j++)
-                    ed[i] += abs(a[j][i]);
-            }
-        }
-        t2 = floor(t / t_re);
-
+        /*
+                //////////// dynamic network
+                t1 = floor(t / t_re);
+                if (t1 != t2)
+                {
+                    dynamicWireAndCut(param.a, p_cut, tid);
+                    // dynamicWireAndCut_undirected(a, p_cut, tid);
+                    // dynamic_triVal(param.a, p_cut, tid);
+                    // dynamic_triVal_random(a, p_8, tid);
+                    // dynamic_norm(a, p_cut, p_sigma, tid);
+                    // dynamic_uniform(a, p_cut, tid);
+                    for (size_t i = 0; i < N; i++)
+                    {
+                        ed[i] = 0;
+                        for (size_t j = 0; j < N; j++)
+                            ed[i] += abs(a[j][i]);
+                    }
+                }
+                t2 = floor(t / t_re);
+        */
         /*
         light_on = light;
 
@@ -233,37 +236,38 @@ void *threadfunc(void *arg)
 
         light_off = light;
         */
-        /*
+
         compute_t1 = floor(t / 150.0);
-
-        if (compute_t1 != compute_t2)
-        {
-            //write_period_N(peak);
-
-            double period_ = period(peak);
-
-            pthread_rwlock_wrlock(&rwlock);
-            write_rt(t, period_, syn_degree(period_, peak));
-            pthread_rwlock_unlock(&rwlock);
-
-            for (int i = 0; i < (N + 1); i++)
-            {
-                for (int j = 0; j < 5; j++)
-                    peak[i][j] = 0;
-                for (int j = 0; j < 2; j++)
+        /*
+                if (compute_t1 != compute_t2)
                 {
-                    peak_now[i][j] = 10;
-                    peak_past[i][j] = 10;
-                    peak_old[i][j] = 10;
-                }
-                ind[i] = 0;
-            }
-        }
+                    // write_period_N(peak);
 
-        compute_t2 = floor(t / 150.0);
+                    double period_ = period(peak);
+
+                    pthread_rwlock_wrlock(&rwlock);
+                    write_rt(t, period_, syn_degree(period_, peak));
+                    pthread_rwlock_unlock(&rwlock);
+
+                    for (int i = 0; i < (N + 1); i++)
+                    {
+                        for (int j = 0; j < 5; j++)
+                            peak[i][j] = 0;
+                        for (int j = 0; j < 2; j++)
+                        {
+                            peak_now[i][j] = 10;
+                            peak_past[i][j] = 10;
+                            peak_old[i][j] = 10;
+                        }
+                        ind[i] = 0;
+                    }
+                }
+
+                compute_t2 = floor(t / 150.0);
         */
-        if (t > (t0 - 300))
-            find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
+        // if (t > (t0 - 300))
+        // find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
+        find_peak_t(t, peak_t, peak_now, peak_past, peak_old, y, ind);
 
         // write_curve(y, t, light);
 
@@ -272,14 +276,29 @@ void *threadfunc(void *arg)
         t += h;
     }
 
-    double period_a = period_ave(peak);
-    double period_s = period_std(peak);
-    double period_ = period(peak);
-    double syn = syn_degree(period_, peak);
+    double peak_tt[N + 1][5] = {0};
 
+    for (int peak_i = 0; peak_i < 87; peak_i += 3)
+    {
+        for (int i = 0; i < (N + 1); i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                peak_tt[i][j] = peak_t[i][j + peak_i];
+            }
+        }
+        double period_ = period(peak_tt);
+        write_rt(peak_i * 24 + 24, period_, syn_degree(period_, peak_tt));
+    }
+    /*
+        double period_a = period_ave(peak);
+        double period_s = period_std(peak);
+        double period_ = period(peak);
+        double syn = syn_degree(period_, peak);
+    */
     pthread_rwlock_wrlock(&rwlock);
     // write_results_period(period_a, period_s, syn, p_random, component);
-    write_results(syn, p_8, t_re);
+    // write_results(syn, p_8, t_re);
     pthread_rwlock_unlock(&rwlock);
 
     /*
@@ -311,7 +330,7 @@ int main(int argc, char *argv[])
 
     // double param_in = stod(argv[1]);
 
-    int nthread = 40;
+    int nthread = 1;
     int same_num = 1;
     int iv;
     double values[nthread];

@@ -19,12 +19,12 @@ int tnum = 1;
 
 void *threadfunc(void *arg)
 {
-    double p_8 = *(double *)arg;
+    double t_re = *(double *)arg;
     double day = 12;
     double p_cut = 0.1;
-    double t_re = 1;
-    double p_random = 0.05;
-    //double p_8 = 1;
+    // double t_re = 24;
+    double p_random = 0.006;
+    double p_8 = 1;
     double p_vd = 0.05;
     double beta_light = 0.8;
     int tid = tnum++;
@@ -34,8 +34,8 @@ void *threadfunc(void *arg)
     double sigma_p = 0.06;
 
     double y[Ns * N];
-    //static double a_vip[N][N];
-    //static double a_gaba[N][N];
+    // static double a_vip[N][N];
+    // static double a_gaba[N][N];
     double **a_vip;
     double **a_gaba;
     a_vip = new double *[N];
@@ -65,9 +65,13 @@ void *threadfunc(void *arg)
     double P[3] = {0, 0, 0};
     double P_var[3] = {0, 0, 0};
 
+    // for r-t curve
+    double peak_t[N + 3][90] = {0};
+
     int light = 0;
     int light_on = 0, light_off = 0;
     int t1, t2;
+    double compute_t1 = 0, compute_t2 = 0;
 
     int connect_num[2] = {0, 0}; // connect_num[0]: vip; connect_num[1]:gaba
 
@@ -84,16 +88,16 @@ void *threadfunc(void *arg)
         ind[i] = 0;
     }
 
-    //srand(tid * (unsigned int)(time(NULL)));
+    // srand(tid * (unsigned int)(time(NULL)));
 
-    //construct_connection(a_vip, a_gaba, p_link, d);
-    //construct_connection_vip(a_vip, a_gaba, p_link, d, p_vd);
+    // construct_connection(a_vip, a_gaba, p_link, d);
+    // construct_connection_vip(a_vip, a_gaba, p_link, d, p_vd);
 
-    //construct_connection_vd(a_vip, a_gaba, p_link, d, p_vd, tid);
-    //construct_connection_random(a_vip, a_gaba, p_random, tid);
-    //connection_number(a_vip, a_gaba, connect_num);
-    construct_connection_sw_triVal(a_vip, a_gaba, p_random, p_8, tid);
-    //construct_connection_uniform(a_vip, a_gaba, p_random, tid);
+    // construct_connection_vd(a_vip, a_gaba, p_link, d, p_vd, tid);
+    construct_connection_random(a_vip, a_gaba, p_random, tid);
+    // connection_number(a_vip, a_gaba, connect_num);
+    // construct_connection_sw_triVal(a_vip, a_gaba, p_random, p_8, tid);
+    // construct_connection_uniform(a_vip, a_gaba, p_random, tid);
 
     for (int i = 0; i < N; i++)
     {
@@ -103,10 +107,10 @@ void *threadfunc(void *arg)
             a_gaba_static[i][j] = a_gaba[i][j];
         }
     }
-    //if (tid == 0)
-    //  cout << p_vd << '/' << connect_num[0] << '/' << connect_num[1] << endl;
+    // if (tid == 0)
+    //   cout << p_vd << '/' << connect_num[0] << '/' << connect_num[1] << endl;
 
-    //write_connect(a_vip);
+    // write_connect(a_vip);
 
     double v_sP[N],
         v_sB[N], v_mB[N];
@@ -180,7 +184,7 @@ void *threadfunc(void *arg)
         y[i * Ns + 20] = 0.00;
     }
 
-    double t = 0, t0 = 1000;
+    double t = 0, t0 = 2000;
 
     const gsl_odeiv_step_type *T = gsl_odeiv_step_rk4;
     gsl_odeiv_step *s = gsl_odeiv_step_alloc(T, Ns * N);
@@ -198,8 +202,8 @@ void *threadfunc(void *arg)
             break;
 
         double delay = 0;
-        //if (t > 400)
-        //  delay = 10;
+        // if (t > 400)
+        //   delay = 10;
         /*
         if ((t > 150) & (fmod(t - delay, 24.0) >= (24.0 - day)))
             light = 1;
@@ -207,31 +211,86 @@ void *threadfunc(void *arg)
             light = 0;
 */
         //// random rewiring
-        /*
+
         t1 = floor(t / t_re);
         if (t1 != t2)
         {
-            //dynamicWireAndCut(a_vip, a_gaba, p_cut, tid);
-            //dynamic_triVal(a_vip, a_gaba, p_cut, tid);
-            dynamic_uniform(a_vip, a_gaba, p_cut, tid);
+            dynamicWireAndCut(a_vip, a_gaba, p_cut, tid);
+            // dynamic_triVal(a_vip, a_gaba, p_cut, tid);
+            // dynamic_uniform(a_vip, a_gaba, p_cut, tid);
         }
         t2 = floor(t / t_re);
-*/
-        if (t > (t0 - 300))
-        {
-            find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
-            //write_MP(y, t, light);
-        }
+
+        /*
+         compute_t1 = floor(t / 150.0);
+
+         if (compute_t1 != compute_t2)
+         {
+             // write_period_N(peak);
+
+             period_ave(P, P_var, peak);
+             syn_degree(R, P, peak);
+             write_rt(t, P, P_var, R);
+
+             for (size_t i = 0; i < 3; i++)
+             {
+                 R[i] = 0;
+                 P[i] = 0; // periods
+                 P_var[i] = 0;
+             }
+             for (int i = 0; i < (N + 3); i++)
+             {
+                 for (int j = 0; j < 5; j++)
+                     peak[i][j] = 0;
+                 for (int j = 0; j < 2; j++)
+                 {
+                     peak_now[i][j] = 10;
+                     peak_past[i][j] = 10;
+                     peak_old[i][j] = 10;
+                 }
+                 ind[i] = 0;
+             }
+         }
+
+         compute_t2 = floor(t / 150.0);
+ */
+        // if (t > (t0 - 300))
+        //{
+        //   find_peak(t, peak, peak_now, peak_past, peak_old, y, ind);
+        find_peak_t(t, peak_t, peak_now, peak_past, peak_old, y, ind);
+        // write_MP(y, t, light);
+        //}
     }
+    double peak_tt[N + 3][5] = {0};
 
-    period_ave(P, P_var, peak);
-    syn_degree(R, P, peak);
+    for (int peak_i = 0; peak_i < 87; peak_i += 3)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            R[i] = 0;
+            P[i] = 0; // periods
+            P_var[i] = 0;
+        }
+        for (int i = 0; i < (N + 3); i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                peak_tt[i][j] = peak_t[i][j + peak_i];
+            }
+        }
+        period_ave(P, P_var, peak_tt);
+        syn_degree(R, P, peak_tt);
+        write_rt(peak_i * 24 + 24, P, P_var, R);
+    }
+    /*
+        period_ave(P, P_var, peak);
+        syn_degree(R, P, peak);
 
-    pthread_rwlock_wrlock(&rwlock);
-    write_results(P, P_var, R, p_8, connect_num, beta_light, p_cut, day);
-    pthread_rwlock_unlock(&rwlock);
-
-    //write_period_N(peak);
+        pthread_rwlock_wrlock(&rwlock);
+        write_results(P, P_var, R, t_re, connect_num, beta_light, p_cut, day);
+        pthread_rwlock_unlock(&rwlock);
+    */
+    // write_period_N(peak);
 
     for (int i = 0; i < N; i++)
     {
@@ -254,9 +313,9 @@ int main(int argc, char *argv[])
     ofile.open("mp.csv");
     ofile.close();
 
-    //double param_in = stod(argv[1]);
+    // double param_in = stod(argv[1]);
 
-    int nthread = 31;
+    int nthread = 1;
     int same_num = 1;
     int iv;
     double values[nthread];
@@ -266,12 +325,12 @@ int main(int argc, char *argv[])
 
     for (size_t i = 0; i < nthread; i++)
     {
-        //if (i <= 20)
-        values[i] = floor((double)i / (double)same_num) * 0.01;
-        //else
-        //   values[i] = (floor((double)i / (double)same_num) - 20) * 0.1;
-        //values[i] = pow(10, i) * 0.1;
-        //values[i] = 0.8;
+        // if (i <= 20)
+        values[i] = floor((double)i / (double)same_num) * 1 + 24;
+        // else
+        //    values[i] = (floor((double)i / (double)same_num) - 20) * 0.1;
+        // values[i] = pow(10, i) * 0.1;
+        // values[i] = 0.8;
         pthread_create(&(threads[i]), NULL, threadfunc, values + i);
     }
 

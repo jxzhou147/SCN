@@ -41,14 +41,14 @@ int scn_firing(double t, const double y[], double f[], void *params)
     double fr_w[N];
     int light = 0;
 
-    //double p_input = 0.5 * sin(2 * PI * (t - 12.0) / 24.0) + 0.5;
+    // double p_input = 0.5 * sin(2 * PI * (t - 12.0) / 24.0) + 0.5;
 
     for (int i = 0; i < N; i++)
     {
         //// Glutamate pathways
         double Glu = v_Glu * y[i * Ns] / (K_Glu + y[i * Ns]);
         double b_GluR = Glu / (K_GluR + Glu);
-        /*
+
         //// Intercellular pathways
         //// For VIP
         int k_connect = 0;
@@ -82,62 +82,63 @@ int scn_firing(double t, const double y[], double f[], void *params)
         }
         if (mu_connect != 0)
             delta = GABA_connect / mu_connect;
-*/
 
-        // 0/0.8/0.2
-        //// Intercellular pathways
-        //// For VIP
-        int k_connect_8 = 0;
-        double VIP_connect_8 = 0;
-        int k_connect_2 = 0;
-        double VIP_connect_2 = 0;
-        double gamma = 0;
-        for (size_t j = 0; j < N; j++)
-        {
-            if (fabs(param->a_vip[j][i] - 0.8) < 1e-6)
-            {
-                k_connect_8 += 1;
-                VIP_connect_8 += y[j * Ns + 18];
-            }
-            else if (fabs(param->a_vip[j][i] - 0.2) < 1e-6)
-            {
-                k_connect_2 += 1;
-                VIP_connect_2 += y[j * Ns + 18];
-            }
-        }
-        if (k_connect_8 != 0)
-        {
-            gamma += 0.8 * VIP_connect_8 / k_connect_8;
-        }
-        if (k_connect_2 != 0)
-        {
-            gamma += 0.2 * VIP_connect_2 / k_connect_2;
-        }
-        double beta = gamma / (K_D + gamma);
+        /*
+                // 0/0.8/0.2
+                //// Intercellular pathways
+                //// For VIP
+                int k_connect_8 = 0;
+                double VIP_connect_8 = 0;
+                int k_connect_2 = 0;
+                double VIP_connect_2 = 0;
+                double gamma = 0;
+                for (size_t j = 0; j < N; j++)
+                {
+                    if (fabs(param->a_vip[j][i] - 0.8) < 1e-6)
+                    {
+                        k_connect_8 += 1;
+                        VIP_connect_8 += y[j * Ns + 18];
+                    }
+                    else if (fabs(param->a_vip[j][i] - 0.2) < 1e-6)
+                    {
+                        k_connect_2 += 1;
+                        VIP_connect_2 += y[j * Ns + 18];
+                    }
+                }
+                if (k_connect_8 != 0)
+                {
+                    gamma += 0.8 * VIP_connect_8 / k_connect_8;
+                }
+                if (k_connect_2 != 0)
+                {
+                    gamma += 0.2 * VIP_connect_2 / k_connect_2;
+                }
+                double beta = gamma / (K_D + gamma);
 
-        /// For GABA
-        int mu_connect_8 = 0;
-        double GABA_connect_8 = 0;
-        int mu_connect_2 = 0;
-        double GABA_connect_2 = 0;
-        double delta = 0;
-        for (size_t j = 0; j < N; j++)
-        {
-            if (fabs(param->a_gaba[j][i] - 0.8) < 1e-6)
-            {
-                mu_connect_8 += 1;
-                GABA_connect_8 += GABA_0 + y[j * Ns + 20];
-            }
-            else if (fabs(param->a_gaba[j][i] - 0.2) < 1e-6)
-            {
-                mu_connect_2 += 1;
-                GABA_connect_2 += GABA_0 + y[j * Ns + 20];
-            }
-        }
-        if (mu_connect_8 != 0)
-            delta += 0.8 * GABA_connect_8 / mu_connect_8;
-        if (mu_connect_2 != 0)
-            delta += 0.2 * GABA_connect_2 / mu_connect_2;
+                /// For GABA
+                int mu_connect_8 = 0;
+                double GABA_connect_8 = 0;
+                int mu_connect_2 = 0;
+                double GABA_connect_2 = 0;
+                double delta = 0;
+                for (size_t j = 0; j < N; j++)
+                {
+                    if (fabs(param->a_gaba[j][i] - 0.8) < 1e-6)
+                    {
+                        mu_connect_8 += 1;
+                        GABA_connect_8 += GABA_0 + y[j * Ns + 20];
+                    }
+                    else if (fabs(param->a_gaba[j][i] - 0.2) < 1e-6)
+                    {
+                        mu_connect_2 += 1;
+                        GABA_connect_2 += GABA_0 + y[j * Ns + 20];
+                    }
+                }
+                if (mu_connect_8 != 0)
+                    delta += 0.8 * GABA_connect_8 / mu_connect_8;
+                if (mu_connect_2 != 0)
+                    delta += 0.2 * GABA_connect_2 / mu_connect_2;
+                    */
         /*
         // uniform
         double gamma = 0;
@@ -170,20 +171,20 @@ int scn_firing(double t, const double y[], double f[], void *params)
         double beta = gamma / (K_D + gamma);
 */
         ///// The effect of light entrainment
-        //double pulse = 500;
+        // double pulse = 500;
         double delay = 0;
-        //if (t > 396)
-        //  delay = 6;
+        // if (t > 396)
+        //   delay = 6;
 
-        //if ((t > 150) & (fmod(t + delay, 24.0) >= (12.0)) & (i < N_v))
-        //if ((t > 150) & (fmod(t - delay, 24.0) >= (24 - param->day)) & (i < N_v))
-        //if ((t > 480) & (fmod(t - delay, 24.0) <= (24 - param->day)) & (i < N_v))
+        // if ((t > 150) & (fmod(t + delay, 24.0) >= (12.0)) & (i < N_v))
+        // if ((t > 150) & (fmod(t - delay, 24.0) >= (24 - param->day)) & (i < N_v))
+        // if ((t > 480) & (fmod(t - delay, 24.0) <= (24 - param->day)) & (i < N_v))
 
-        //if ((t >= param->pulse) && (t < (param->pulse + delay)))
+        // if ((t >= param->pulse) && (t < (param->pulse + delay)))
 
-        //if ((t > 150) && (fmod(t, param->daylength) >= (param->daylength / 2.0)) && (i < (N_v * (0.5 * sin(2 * PI * (t - 10 - param->daylength / 2.0) / param->daylength) + 0.5))))
-        //if ((t > 150) & (fmod(t, param->daylength) >= (param->daylength - param->day)) & (i < N_v * p_input))
-        //if ((t > 150) && (fmod(t, 24.0) >= (24 - param->day)) && (i < N_v) && ((rand() / double(RAND_MAX)) < (0.5 * sin(2 * PI * (t - 12.0) / 24.0) + 0.5)))
+        // if ((t > 150) && (fmod(t, param->daylength) >= (param->daylength / 2.0)) && (i < (N_v * (0.5 * sin(2 * PI * (t - 10 - param->daylength / 2.0) / param->daylength) + 0.5))))
+        // if ((t > 150) & (fmod(t, param->daylength) >= (param->daylength - param->day)) & (i < N_v * p_input))
+        // if ((t > 150) && (fmod(t, 24.0) >= (24 - param->day)) && (i < N_v) && ((rand() / double(RAND_MAX)) < (0.5 * sin(2 * PI * (t - 12.0) / 24.0) + 0.5)))
         /*
         if ((t > 150) && (fmod(t - delay, param->daylength) >= (param->daylength - param->day)) && (i < (N_v)))
         {
@@ -193,8 +194,8 @@ int scn_firing(double t, const double y[], double f[], void *params)
         }
 */
         ///// v to d weight cutting 50% in days
-        //if ((t > 150) && (fmod(t, param->daylength) >= (param->daylength - param->day)) && (i >= (N_v)))
-        //  beta = beta * 0.95;
+        // if ((t > 150) && (fmod(t, param->daylength) >= (param->daylength - param->day)) && (i >= (N_v)))
+        //   beta = beta * 0.95;
         /*
         if (t > 600)
         {
@@ -212,7 +213,7 @@ int scn_firing(double t, const double y[], double f[], void *params)
 
         if (t < 150)
         {
-            //gamma = 0;
+            // gamma = 0;
             beta = 0;
             delta = 0;
         }
@@ -225,8 +226,8 @@ int scn_firing(double t, const double y[], double f[], void *params)
         if (t < 150)
             v_k = 0;
 
-        //if ((t > 334) & (i == 400))
-        //  std::cout << t << '\t' << delta << '\t' << beta << '\t' << f_r << '\t' << v_k << '\t' << y[i * Ns] << '\t' << y[i * Ns + 4] << '\t' << y[i * Ns + 11] << '\t' << y[i * Ns + 16] << std::endl;
+        // if ((t > 334) & (i == 400))
+        //   std::cout << t << '\t' << delta << '\t' << beta << '\t' << f_r << '\t' << v_k << '\t' << y[i * Ns] << '\t' << y[i * Ns + 4] << '\t' << y[i * Ns + 11] << '\t' << y[i * Ns + 16] << std::endl;
 
         f[i * Ns] = (param->v_sP[i] + C_T * CB_T * y[i * Ns + 19] / (K_C + CB_T * y[i * Ns + 19])) * pow(y[i * Ns + 13], n) / (pow(K_AP, n) + pow(y[i * Ns + 13], n)) - v_mP * y[i * Ns] / (K_mP + y[i * Ns]) - k_dmp * y[i * Ns];
         f[i * Ns + 1] = v_sC * pow(y[i * Ns + 13], n) / (pow(K_AC, n) + pow(y[i * Ns + 13], n)) - v_mC * y[i * Ns + 1] / (K_mC + y[i * Ns + 1]) - k_dmc * y[i * Ns + 1];
@@ -250,7 +251,7 @@ int scn_firing(double t, const double y[], double f[], void *params)
         f[i * Ns + 18] = v_VIP * pow(f_r, n_VIP) / (K_VIP + pow(f_r, n_VIP)) - k_dVIP * real_root_transfer(y[i * Ns + 18], n_dVIP);
         f[i * Ns + 19] = (v_P / CB_T) * ((v_k / v_P) * (1 - y[i * Ns + 19]) / (K_1 + 1 - y[i * Ns + 19]) - y[i * Ns + 19] / (K__2 + y[i * Ns + 19]));
         f[i * Ns + 20] = v_GABA * pow(f_r, n_GABA) / (K_GABA + pow(f_r, n_GABA)) - k_dGABA * real_root_transfer(y[i * Ns + 20], n_dGABA);
-        //f[i * Ns + 20] = v_GABA * pow(f_r, n_GABA) / (K_GABA + pow(f_r, n_GABA)) - k_dGABA * pow(GABA_0 + y[i * Ns + 20], n_dGABA);
+        // f[i * Ns + 20] = v_GABA * pow(f_r, n_GABA) / (K_GABA + pow(f_r, n_GABA)) - k_dGABA * pow(GABA_0 + y[i * Ns + 20], n_dGABA);
         /*
         if (y[i * Ns + 18] > 0)
             f[i * Ns + 18] = v_VIP * pow(f_r, n_VIP) / (K_VIP + pow(f_r, n_VIP)) - k_dVIP * pow(y[i * Ns + 18], n_dVIP);
@@ -270,13 +271,13 @@ int scn_firing(double t, const double y[], double f[], void *params)
             std::cout << y[i * Ns + 20] << '\t' << f[i * Ns + 20] << '\t';
         }
 */
-        //if (t > 335.1)
-        //  std::cout << f[i * Ns + 20] << '\t';
+        // if (t > 335.1)
+        //   std::cout << f[i * Ns + 20] << '\t';
     }
 
-    //if (t > 300)
-    //  write_fr(fr_w, t, light);
-    //write_input(p_input, t, light);
+    // if (t > 300)
+    //   write_fr(fr_w, t, light);
+    // write_input(p_input, t, light);
 
     return GSL_SUCCESS;
 }

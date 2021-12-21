@@ -25,7 +25,7 @@ struct Enrange
 double firingRate(double M_P, double C_C, double B_C, double Ca, double delta, double t);
 void construct_connection(double (*a_vip)[N], double (*a_gaba)[N], double p_link, double d);
 void construct_connection_vip(double (*a_vip)[N], double (*a_gaba)[N], double p_link, double d, double p_vd);
-//void construct_connection_vd(double (*a_vip)[N], double (*a_gaba)[N], double p_link, double d, double p_vd, int tid);
+// void construct_connection_vd(double (*a_vip)[N], double (*a_gaba)[N], double p_link, double d, double p_vd, int tid);
 void construct_connection_vd(double **a_vip, double **a_gaba, double p_link, double d, double p_vd, int tid);
 void construct_connection_random(double **a_vip, double **a_gaba, double p_random, int tid);
 void construct_connection_triVal(double **a_vip, double **a_gaba, double p_random, double p_8, int tid);
@@ -38,7 +38,7 @@ void dynamicNet(double **a_vip, double **a_gaba, double **a_vip_static, double *
 void dynamicWireAndCut(double **a_vip, double **a_gaba, const double p_cut, int tid);
 void dynamic_triVal(double **a_vip, double **a_gaba, const double p_cut, int tid);
 void dynamic_uniform(double **a_vip, double **a_gaba, const double p_cut, int tid);
-//void connection_number(const double (*a_vip)[N], const double (*a_gaba)[N], int connect_num[]);
+// void connection_number(const double (*a_vip)[N], const double (*a_gaba)[N], int connect_num[]);
 int scn_firing(double t, const double y[], double f[], void *params);
 void write_MP(const double y[], const double t, int light);
 void write_n1(const double y[], const double t, int light);
@@ -55,6 +55,7 @@ void write_period_N(const double (*peak)[5]);
 void find_peak_ave(const double t, double peak_ave[], double peak_now[], double peak_past[], double peak_old[], const double y[], int ind_ave[]);
 void find_peak_ave_vd(const double t, double peak_ave_v[], double peak_now_v[], double peak_past_v[], double peak_old_v[], double peak_ave_d[], double peak_now_d[], double peak_past_d[], double peak_old_d[], const double y[], int ind_ave_v[], int ind_ave_d[]);
 void find_peak(const double t, double (*peak)[5], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[]);
+void find_peak_t(const double t, double (*peak)[90], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[]);
 void period(double P[], double P_var[], const double (*peak)[5]);
 void period_ave(double P[], double P_var[], const double (*peak)[5]);
 void period_N1(double P[], double P_var[], const double (*peak)[5]);

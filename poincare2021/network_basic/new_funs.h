@@ -42,6 +42,7 @@ int part_num(double **a);
 void net_component(double **a, int *component);
 
 // resluts analysis
+void find_peak_t(const double t, double (*peak)[90], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[]);
 void find_peak(const double t, double (*peak)[5], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[]);
 double period(const double (*peak)[5]);
 double period_ave(const double (*peak)[5]);

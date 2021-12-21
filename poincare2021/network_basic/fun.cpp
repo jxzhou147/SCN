@@ -162,6 +162,59 @@ void write_net(double p_random, int connect_num, int part_num)
     ofile.close();
 }
 
+void find_peak_t(const double t, double (*peak)[90], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[])
+{
+    int ind_min = 45;
+    for (size_t i_min = 0; i_min < (N + 1); i_min++)
+    {
+        if (ind_min > ind[i_min])
+            ind_min = ind[i_min];
+    }
+
+    double average = 0;
+    for (size_t i = 0; i < N; i++)
+        average += y[i];
+    average = average / N;
+
+    if (ind_min < 90)
+    {
+        for (size_t i = 0; i < (N + 1); i++)
+        {
+            peak_old[i][0] = peak_past[i][0]; // [0] is x, [1] is t
+            peak_old[i][1] = peak_past[i][1];
+            peak_past[i][0] = peak_now[i][0];
+            peak_past[i][1] = peak_now[i][1];
+        }
+        for (size_t i = 0; i < N; i++)
+        {
+            peak_now[i][0] = y[i];
+            peak_now[i][1] = t;
+        }
+        peak_now[N][0] = average;
+        peak_now[N][1] = t;
+
+        for (size_t i_p = 0; i_p < (N + 1); i_p++)
+        {
+            if ((peak_past[i_p][0] > 0) & (peak_past[i_p][0] > peak_old[i_p][0]) & (peak_past[i_p][0] > peak_now[i_p][0]) & (ind[i_p] < 90))
+            {
+                if (ind[i_p] == 0)
+                {
+                    peak[i_p][ind[i_p]] = peak_past[i_p][1];
+                    ind[i_p] = ind[i_p] + 1;
+                }
+                else
+                {
+                    if ((peak_past[i_p][1] - peak[i_p][ind[i_p] - 1]) > 10)
+                    {
+                        peak[i_p][ind[i_p]] = peak_past[i_p][1];
+                        ind[i_p] = ind[i_p] + 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void find_peak(const double t, double (*peak)[5], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[])
 {
     int ind_min = 5;

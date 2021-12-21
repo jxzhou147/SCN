@@ -153,6 +153,73 @@ void write_period_N(const double (*peak)[5])
     ofile.close();
 }
 
+void find_peak_t(const double t, double (*peak)[90], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[])
+{
+    int ind_min = 90;
+    for (size_t i_min = 0; i_min < (N + 3); i_min++)
+    {
+        if (ind_min > ind[i_min])
+            ind_min = ind[i_min];
+    }
+
+    double average_v = 0;
+    for (size_t i = 0; i < N_v; i++)
+        average_v += y[i * Ns];
+    average_v = average_v / N_v;
+
+    double average_d = 0;
+    for (size_t i = N_v; i < N; i++)
+        average_d += y[i * Ns];
+    average_d = average_d / (N - N_v);
+
+    double average = 0;
+    for (size_t i = 0; i < N; i++)
+        average += y[i * Ns];
+    average = average / N;
+
+    if (ind_min < 90)
+    {
+        for (size_t i = 0; i < (N + 3); i++)
+        {
+            peak_old[i][0] = peak_past[i][0]; // [0] is M_P, [1] is t
+            peak_old[i][1] = peak_past[i][1];
+            peak_past[i][0] = peak_now[i][0];
+            peak_past[i][1] = peak_now[i][1];
+        }
+        for (size_t i = 0; i < N; i++)
+        {
+            peak_now[i][0] = y[i * Ns];
+            peak_now[i][1] = t;
+        }
+        peak_now[N][0] = average_v;
+        peak_now[N][1] = t;
+        peak_now[N + 1][0] = average_d;
+        peak_now[N + 1][1] = t;
+        peak_now[N + 2][0] = average;
+        peak_now[N + 2][1] = t;
+
+        for (size_t i_p = 0; i_p < (N + 3); i_p++)
+        {
+            if ((peak_past[i_p][0] > 0) & (peak_past[i_p][0] > peak_old[i_p][0]) & (peak_past[i_p][0] > peak_now[i_p][0]) & (ind[i_p] < 90))
+            {
+                if (ind[i_p] == 0)
+                {
+                    peak[i_p][ind[i_p]] = peak_past[i_p][1];
+                    ind[i_p] = ind[i_p] + 1;
+                }
+                else
+                {
+                    if ((peak_past[i_p][1] - peak[i_p][ind[i_p] - 1]) > 10)
+                    {
+                        peak[i_p][ind[i_p]] = peak_past[i_p][1];
+                        ind[i_p] = ind[i_p] + 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void find_peak(const double t, double (*peak)[5], double (*peak_now)[2], double (*peak_past)[2], double (*peak_old)[2], const double y[], int ind[])
 {
     int ind_min = 5;
